@@ -1,6 +1,349 @@
 # IDS AE+RF Fusion - Network Intrusion Detection System
 
-## 📋 Mô Tả Dự Án
+---
+
+## Table of Contents
+- [English Version](#english-version)
+- [Phiên Bản Tiếng Việt](#phiên-bản-tiếng-việt)
+
+---
+
+# English Version
+
+## Project Description
+
+This project develops a **Network Intrusion Detection System (IDS)** using a **hybrid approach combining Autoencoder (AE) and Random Forest (RF)** to detect and classify network attacks.
+
+### Main Objectives:
+- **Dimensionality Reduction**: Use Autoencoder to extract potent features from network traffic data
+- **Classification**: Use Random Forest to classify data into "Benign" or "Attack" categories
+- **Method Comparison**: Evaluate AE+RF performance against baseline methods (RF-only, SVM)
+- **Cross-Dataset Evaluation**: Assess generalization capability across different datasets
+
+---
+
+## Project Structure
+
+```
+ids_ae_rf_fusion/
+├── README.md                           # This documentation
+├── requirements.txt                    # Python library dependencies
+├── setup_new_env.py                    # Environment initialization script
+│
+├── src/                                # Main source code
+│   ├── config.py                       # Project configuration (paths, hyperparameters)
+│   ├── autoencoder.py                  # Deep Autoencoder Model (PyTorch)
+│   ├── rf_classifier.py                # Random Forest Classifier
+│   ├── preprocessing.py                # Data preprocessing and cleaning
+│   ├── feature_selection.py            # Feature selection (mRMR)
+│   ├── evaluation.py                   # Model evaluation & visualization
+│   └── utils.py                        # Utility functions
+│
+├── datasets/                           # Datasets (metadata only)
+│   └── dataset.txt                     # Dataset description
+│
+├── notebooks/                          # Jupyter Notebooks (experimental pipeline)
+│   ├── 0a_mRMR_selection.ipynb         # Feature selection (mRMR)
+│   ├── 0b_mRMR_features_and_latent_features.ipynb
+│   │
+│   ├── 1a_ae_rf_fusion_mix_training.ipynb      # [Stage 1] Mixed training
+│   ├── 1b_rf_mix_training.ipynb                # Baseline: RF-only
+│   ├── 1c_svm_mix_training.ipynb               # Baseline: SVM
+│   │
+│   ├── 2a_ae_rf_fusion_within_dataset.ipynb    # [Stage 2] Within-dataset testing
+│   ├── 2b_rf_within_dataset.ipynb
+│   ├── 2c_svm_within_dataset.ipynb
+│   │
+│   ├── 3a_ae_rf_fusion_cross_dataset.ipynb     # [Stage 3] Cross-dataset testing
+│   ├── 3b_rf_cross_dataset.ipynb
+│   ├── 3c_svm_cross_dataset.ipynb
+│   │
+│   └── archived/                       # Legacy notebooks & experiments
+│
+├── results/                            # Experimental results
+│   ├── experiments/                    # Results from each run
+│   │   └── exp_YYYYMMDD_HHMMSS/
+│   │       ├── report_*.txt            # Detailed metrics report
+│   │       ├── figures/                # Confusion Matrix & visualizations
+│   │       ├── models/                 # Trained models
+│   │       └── experiment_details.txt  # Configuration & hyperparameters
+│   │
+│   └── Summary/                        # Comparison summary of methods
+│
+└── models/                             # (Optional) Trained model storage
+```
+
+---
+
+## Requirements & Installation
+
+### 1. **System Requirements**
+- Python 3.8+
+- CUDA (optional, for GPU acceleration if available)
+- RAM: 8GB+ (16GB+ recommended)
+
+### 2. **Library Installation**
+
+```bash
+# Method 1: Direct installation from requirements.txt
+pip install -r requirements.txt
+
+# Method 2: Using setup script (if available)
+python setup_new_env.py
+```
+
+### 3. **Main Libraries**
+
+Core libraries used:
+- **numpy**, **pandas** - Data processing
+- **scikit-learn** - Machine Learning (Random Forest, SVM, metrics)
+- **torch** - Deep Learning (Autoencoder)
+- **matplotlib**, **seaborn** - Result visualization
+- **joblib** - Model saving/loading
+- **mrmr-selection** - Feature selection
+
+---
+
+## Datasets
+
+The project uses two public IDS datasets:
+
+| Dataset | Year | Samples | Characteristics |
+|---------|------|---------|-----------------|
+| **CIC-IDS2017** | 2017 | ~2.8M | Real network traffic, 15 attack types |
+| **CSE-CIC-IDS2018** | 2018 | ~2.5M | Updated from 2017, modern attacks |
+
+### Attack Types:
+- **BENIGN** - Normal traffic
+- **DOS** - Denial of Service (HULK, GoldenEye, SlowLoris, SlowHTTPTest)
+- **DDOS** - Distributed DoS (HOIC, LOIC)
+- **BRUTEFORCE** - Brute force attacks (FTP, SSH)
+- **BOT** - Botnet
+- **PORTSCAN** - Port scanning
+- **WEB** - Web attacks (SQL Injection, XSS, Brute Force)
+- **INFILTRATION** - Infiltration
+- **HEARTBLEED** - Heartbleed vulnerability
+
+---
+
+## Main Module Descriptions
+
+### 1. **config.py** - Project Configuration
+
+Manages all configurations:
+- **Data paths**: Datasets, results directories
+- **Data hyperparameters**:
+  - `BINARY_MODE = True` - Binary classification (Benign vs Attack)
+  - `CHUNK_SIZE = 100000` - File chunk reading size
+  - `SEED = 42` - Random seed for reproducibility
+
+- **Preprocessing**:
+  - `DROP_COLS` - Columns to drop (identifiers, sparse, mismatches)
+  - `RENAME_2018_TO_2017` - Column name mapping 2018 → 2017 (normalization)
+  - `BENIGN_LABELS` - Labels considered as "benign"
+
+- **Autoencoder hyperparameters**:
+  - Input dimension, latent dimension, hidden layers
+
+- **Random Forest hyperparameters**:
+  - Number of trees (n_estimators)
+  - Max depth
+  - Class weight balancing
+
+### 2. **autoencoder.py** - Deep Autoencoder
+
+```python
+class DeepAutoencoder(nn.Module):
+    """
+    Symmetric autoencoder with:
+    - Encoder: Input → Hidden Layers → Latent (bottleneck)
+    - Decoder: Latent → Hidden Layers → Output
+    
+    Features:
+    - Batch Normalization + LeakyReLU
+    - Linear output activation
+    - MSE Loss for data reconstruction
+    """
+```
+
+**Functions**:
+- Reconstruction: Learn to extract features from normal data
+- Dimensionality Reduction: Compress 67 features to smaller latent space
+- Anomaly Detection: Attacks have high reconstruction error
+
+### 3. **rf_classifier.py** - Random Forest Classifier
+
+```python
+def train_rf(X_train, y_train, save_path=None):
+    """
+    Train Random Forest with:
+    - n_estimators = 200
+    - max_depth = 20
+    - class_weight = 'balanced' (handles data imbalance)
+    - n_jobs = 8 (multi-processing)
+    """
+```
+
+### 4. **preprocessing.py** - Data Preprocessing
+
+- Read data in chunks
+- Data cleaning (remove NaN, duplicates)
+- Column name normalization (2018 → 2017)
+- Drop identifier columns (Flow ID, IP, Timestamp)
+- Data standardization (StandardScaler)
+- Label encoding (Benign → 0, Attack → 1)
+
+### 5. **feature_selection.py** - Feature Selection
+
+Uses **mRMR (Minimum Redundancy Maximum Relevance)**:
+- Select features with high correlation to labels
+- Prioritize features with low redundancy
+
+### 6. **evaluation.py** - Model Evaluation
+
+Computed metrics:
+- **Accuracy** - Overall accuracy
+- **MCC (Matthews Correlation Coefficient)** - Balanced metric for imbalanced data
+- **Precision, Recall, F1-score** - Per-class metrics
+- **Confusion Matrix** - True/false positives visualization
+
+---
+
+## Usage Guide
+
+### **Stage 0: Data Preparation**
+1. Download CIC-IDS2017 & CSE-CIC-IDS2018 to `datasets/CIC-IDS2017` and `datasets/CSE-CIC-IDS2018`
+2. Run notebook `0a_mRMR_selection.ipynb` for feature selection
+3. Result: List of ~20-30 best features
+
+### **Stage 1: Mixed Training**
+- Combine data from both 2017 and 2018
+- Train: 80% / Test: 20%
+- Run:
+  - `1a_ae_rf_fusion_mix_training.ipynb` - **Proposed method**
+  - `1b_rf_mix_training.ipynb` - RF-only baseline
+  - `1c_svm_mix_training.ipynb` - SVM baseline
+- Result: Compare 3 methods
+
+### **Stage 2: Within-Dataset Testing**
+- Train & test on same dataset:
+  - 2017 train/test
+  - 2018 train/test
+- Run:
+  - `2a_ae_rf_fusion_within_dataset.ipynb`
+  - `2b_rf_within_dataset.ipynb`
+  - `2c_svm_within_dataset.ipynb`
+
+### **Stage 3: Cross-Dataset Testing**
+- Train on one dataset, test on another:
+  - Train 2017 → Test 2018
+  - Train 2018 → Test 2017
+- Run:
+  - `3a_ae_rf_fusion_cross_dataset.ipynb`
+  - `3b_rf_cross_dataset.ipynb`
+  - `3c_svm_cross_dataset.ipynb`
+- **Purpose**: Evaluate generalization capability
+
+---
+
+## Expected Results
+
+### Performance Expectations
+| Method | Mixed | Within-2017 | Within-2018 | Cross (17→18) | Cross (18→17) |
+|--------|-------|-------------|-------------|---------------|---------------|
+| **AE+RF (Proposed)** | ~95-98% | ~97-99% | ~95-97% | ~85-90% | ~82-87% |
+| **RF-only (Baseline)** | ~92-95% | ~95-98% | ~93-96% | ~80-85% | ~78-83% |
+| **SVM (Baseline)** | ~90-94% | ~93-97% | ~91-95% | ~75-82% | ~73-80% |
+
+**Note**: Cross-dataset results typically lower due to distribution differences between datasets
+
+---
+
+## How to Run a Notebook
+
+### 1. **From Command Line**
+```bash
+# Run notebook and save results
+jupyter nbconvert --to notebook --execute --output output.ipynb 1a_ae_rf_fusion_mix_training.ipynb
+
+# Or open Jupyter Lab for interactive execution
+jupyter lab
+```
+
+### 2. **In VS Code**
+- Open `.ipynb` file
+- Select Python kernel
+- Run individual cells or Run All
+
+### 3. **Change Configuration**
+- Edit `src/config.py`:
+  - Data paths
+  - Model hyperparameters
+  - Feature selection parameters
+- Configuration automatically loaded in notebooks
+
+---
+
+## Results Structure
+
+Each notebook run creates a results directory:
+```
+results/experiments/exp_YYYYMMDD_HHMMSS/
+├── experiment_details.txt          # Configuration, hyperparameters
+├── report_Mixed_Test_Set.txt       # Detailed metrics report
+├── figures/
+│   ├── cm_Mixed_Test_Set.png       # Confusion Matrix
+│   └── ... (other figures)
+└── models/
+    └── model.joblib / model.pt     # Trained models
+```
+
+---
+
+## Key Points
+
+**Advantages of AE+RF Fusion**:
+- Dimensionality Reduction: Removes noise & redundant features
+- Automatic Feature Learning: Learns features from data
+- RF Speed: Fast & requires minimal hyperparameter tuning
+- Combined Strengths: Leverages advantages of both methods
+
+**Challenges**:
+- Cross-dataset Performance: Difficult to generalize between years
+- Class Imbalance: Normal data much more abundant than attack data
+- Hyperparameter Tuning: Need to find optimal latent dimension
+
+---
+
+## Contributing & Support
+
+For questions or improvements:
+1. Check `notebooks/archived/` for previous experiments
+2. Review reports in `results/experiments/`
+3. Edit `src/config.py` to try different hyperparameters
+
+---
+
+## References
+
+- **CIC-IDS2017**: https://www.unb.ca/cic/datasets/ids-2017.html
+- **CSE-CIC-IDS2018**: https://www.unb.ca/cic/datasets/ids-2018.html
+- **mRMR Feature Selection**: https://github.com/ELELAB/pymrmr
+- **PyTorch Autoencoder**: https://pytorch.org/tutorials/beginner/introyt/autoencoders_tutorial.html
+- **scikit-learn Random Forest**: https://scikit-learn.org/stable/modules/ensemble.html#random-forests
+
+---
+
+**Created**: January 2026  
+**Version**: 1.0
+
+---
+
+---
+
+# Phiên Bản Tiếng Việt
+
+## Mô Tả Dự Án
 
 Dự án này phát triển một **hệ thống phát hiện xâm nhập mạng (IDS)** sử dụng kỹ thuật **kết hợp Autoencoder (AE) và Random Forest (RF)** để phát hiện và phân loại các cuộc tấn công mạng.
 
@@ -12,7 +355,7 @@ Dự án này phát triển một **hệ thống phát hiện xâm nhập mạng
 
 ---
 
-## 📁 Cấu Trúc Dự Án
+## Cấu Trúc Dự Án
 
 ```
 ids_ae_rf_fusion/
@@ -65,7 +408,7 @@ ids_ae_rf_fusion/
 
 ---
 
-## 🛠️ Yêu Cầu & Cài Đặt
+## Yêu Cầu & Cài Đặt
 
 ### 1. **Yêu Cầu Hệ Thống**
 - Python 3.8+
@@ -94,7 +437,7 @@ Các thư viện chính được sử dụng:
 
 ---
 
-## 📊 Bộ Dữ Liệu
+## Bộ Dữ Liệu
 
 Dự án sử dụng hai bộ dữ liệu IDS công cộng:
 
@@ -116,7 +459,7 @@ Dự án sử dụng hai bộ dữ liệu IDS công cộng:
 
 ---
 
-## 🔧 Mô Tả Các Module Chính
+## Mô Tả Các Module Chính
 
 ### 1. **config.py** - Cấu Hình Toàn Dự Án
 
@@ -199,7 +542,7 @@ Các metrics được tính toán:
 
 ---
 
-## 🚀 Hướng Dẫn Sử Dụng
+## Hướng Dẫn Sử Dụng
 
 ### **Giai đoạn 0: Chuẩn Bị Dữ Liệu**
 1. Tải CIC-IDS2017 & CSE-CIC-IDS2018 vào `datasets/CIC-IDS2017` và `datasets/CSE-CIC-IDS2018`
@@ -236,7 +579,7 @@ Các metrics được tính toán:
 
 ---
 
-## 📈 Kết Quả Dự Kiến
+## Kết Quả Dự Kiến
 
 ### Hiệu Suất Dự Kiến
 | Phương Pháp | Mixed | Within-2017 | Within-2018 | Cross (17→18) | Cross (18→17) |
@@ -249,7 +592,7 @@ Các metrics được tính toán:
 
 ---
 
-## 📝 Cách Chạy Một Notebook
+## Cách Chạy Một Notebook
 
 ### 1. **Từ Command Line**
 ```bash
@@ -274,7 +617,7 @@ jupyter lab
 
 ---
 
-## 🔍 Cấu Trúc Kết Quả (Results)
+## Cấu Trúc Kết Quả (Results)
 
 Mỗi lần chạy notebook tạo thư mục kết quả:
 ```
@@ -290,22 +633,22 @@ results/experiments/exp_YYYYMMDD_HHMMSS/
 
 ---
 
-## 🎯 Những Điểm Chính
+## Những Điểm Chính
 
-✅ **Ưu điểm của AE+RF Fusion**:
+**Ưu điểm của AE+RF Fusion**:
 - Giảm chiều: Loại bỏ features noise & redundant
 - Học được đặc trưng tự động từ dữ liệu
 - RF nhanh & không cần điều chỉnh siêu tham số phức tạp
 - Kết hợp: Lợi thế của cả 2 phương pháp
 
-⚠️ **Thách thức**:
+**Thách thức**:
 - Cross-dataset performance: Mô hình khó tổng quát hóa giữa các năm
 - Class imbalance: Dữ liệu bình thường nhiều hơn dữ liệu tấn công
 - Hyperparameter tuning: Cần tìm optimal latent dimension
 
 ---
 
-## 🤝 Đóng Góp & Hỗ Trợ
+## Đóng Góp & Hỗ Trợ
 
 Nếu có câu hỏi hoặc muốn cải tiến dự án:
 1. Kiểm tra `notebooks/archived/` để xem các thử nghiệm trước đó
@@ -314,7 +657,7 @@ Nếu có câu hỏi hoặc muốn cải tiến dự án:
 
 ---
 
-## 📚 Tham Khảo
+## Tham Khảo
 
 - **CIC-IDS2017**: https://www.unb.ca/cic/datasets/ids-2017.html
 - **CSE-CIC-IDS2018**: https://www.unb.ca/cic/datasets/ids-2018.html
