@@ -439,7 +439,7 @@ Các thư viện chính được sử dụng:
 
 ## Bộ Dữ Liệu
 
-Dự án sử dụng hai bộ dữ liệu IDS công cộng:
+Dự án sử dụng hai bộ dữ liệu IDS công khai:
 
 | Bộ Dữ Liệu | Năm | Số mẫu | Đặc điểm |
 |-----------|-----|--------|---------|
