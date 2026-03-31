@@ -5,8 +5,9 @@ venv/
 __pycache__/
 *.pyc
 
-# Jupyter
+# Notebook
 .ipynb_checkpoints/
+notebooks/archived
 
 # Data
 datasets/
@@ -15,7 +16,6 @@ data/realtime/
 
 
 # Result
-
 results/experiments
 results/summary
 

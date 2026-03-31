@@ -205,8 +205,8 @@ RAW_TO_CANONICAL = {
 # 65
 SELECTED_FEATURES = ['RST Flag Count', 'Total Length of Fwd Packets', 'Bwd IAT Min', 'ECE Flag Count', 
                      'act_data_pkt_fwd', 'Idle Std', 'Bwd Packet Length Min', 'Total Fwd Packets', 
-                     'Bwd IAT Mean', 'PSH Flag Count', 'Destination Port', 'Flow IAT Std', 'Bwd Packet Length Std', 
-                     'Bwd IAT Max', 'Active Min', 'Fwd PSH Flags', 'Fwd Packet Length Max', 'Init_Win_bytes_backward', 
+                     'Bwd IAT Mean', 'PSH Flag Count', 'Destination Port', 'Flow IAT Std', 
+                     'Bwd Packet Length Std', 'Bwd IAT Max', 'Active Min', 'Fwd PSH Flags', 'Fwd Packet Length Max', 'Init_Win_bytes_backward', 
                      'Flow Duration', 'SYN Flag Count', 'Fwd IAT Min', 'Bwd IAT Std', 'Down/Up Ratio', 
                      'Fwd Header Length', 'Fwd IAT Total', 'Active Mean', 'Fwd Packet Length Std', 
                      'Fwd IAT Mean', 'URG Flag Count', 'Min Packet Length', 'Idle Max', 'Bwd Packets/s', 
@@ -268,7 +268,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 AE_INPUT_DIM = 30 
 AE_LATENT_DIM = 5
 AE_HIDDEN_LAYERS = [22, 12] 
-AE_EPOCHS = 50
+AE_EPOCHS = 30
 
 
 # Thay đổi từ 1024 lên hẳn 16384 hoặc 32768

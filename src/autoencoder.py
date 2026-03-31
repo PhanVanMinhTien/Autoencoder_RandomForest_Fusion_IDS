@@ -170,3 +170,16 @@ def extract_features(model, X):
     X_tensor = torch.tensor(X, dtype=torch.float32).to(config.DEVICE)
     Z = model.get_latent(X_tensor)
     return Z.cpu().numpy()
+
+
+def perform_fusion(X_scaled, X_latent, top_k=20):
+    """
+    Fusion strategy: [top_k features] + [latent features]
+    """
+    # Lấy top_k feature đầu (mRMR đã sắp xếp rồi)
+    X_top = X_scaled[:, :top_k]
+    
+    # Concatenate với latent
+    X_fusion = np.hstack((X_top, X_latent))
+    
+    return X_fusion

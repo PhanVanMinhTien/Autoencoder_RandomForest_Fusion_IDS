@@ -11,7 +11,7 @@ def train_rf(X_train, y_train , save_path=None):
         max_depth = config.RF_MAX_DEPTH,
         max_features = 'sqrt',
         criterion = 'gini', # or 'entropy'
-        class_weight = 'balanced', # handling Data Imbalance
+        class_weight = {0: 1, 1: 10}, # handling Data Imbalance
         n_jobs = 8, # 14 cores total # -2 means all but one core # -1 means all cores # 
         random_state = config.SEED,
         verbose = 2
@@ -25,7 +25,7 @@ def train_rf(X_train, y_train , save_path=None):
         print(f"✅ RF Model saved to: {save_path}")
     else:
         default_path = config.MODELS_DIR / "classifier/rf_model.joblib"
-        default_path.parent.mkdir(parents=True, exist_ok=True) # <--- DÒNG CỨU CÁNH
+        default_path.parent.mkdir(parents=True, exist_ok=True)
         
         joblib.dump(rf, default_path)
         print(f"⚠️ RF Model saved to default: {default_path}")
