@@ -1,0 +1,28 @@
+# Virtual environment
+venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+datasets/
+data/raw/
+data/realtime/
+
+
+# Result
+
+results/experiments
+results/summary
+
+# Models
+*.pkl
+*.h5
+
+# OS
+.DS_Store
+Thumbs.db
