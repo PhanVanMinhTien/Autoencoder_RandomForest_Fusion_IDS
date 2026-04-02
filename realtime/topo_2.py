@@ -35,10 +35,10 @@ def myNetwork():
     gw = net.addHost('gw')
 
     # 4 link tương ứng 4 VLAN
-    net.addLink(gw, core1, intfName1='gw-eth0')
-    net.addLink(gw, core1, intfName1='gw-eth1')
-    net.addLink(gw, core1, intfName1='gw-eth2')
-    net.addLink(gw, core1, intfName1='gw-eth3')
+    net.addLink(gw, core1, port1=0, port2=10, intfName1='gw-eth0')
+    net.addLink(gw, core1, port1=1, port2=11, intfName1='gw-eth1')
+    net.addLink(gw, core1, port1=2, port2=12, intfName1='gw-eth2')
+    net.addLink(gw, core1, port1=3, port2=13, intfName1='gw-eth3')
     ####
 
 
