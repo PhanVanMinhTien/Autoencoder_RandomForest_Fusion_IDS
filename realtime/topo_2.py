@@ -67,7 +67,11 @@ def myNetwork():
     for i, h in enumerate(srv_hosts):  net.addLink(h, access_switches[3], port2=i+3)
 
 
+    print("*** Wating 5 seconds for user to run extractor. . . ")
+    
+    time.sleep(5)
 
+    
 
     print("*** Starting Network")
     net.start()
@@ -89,9 +93,7 @@ def myNetwork():
 
     print("*** Generating traffic automatically...")
     import time
-
     srv = net.get('h_srv_0')
-
     srv.cmd('iperf3 -s &')
     srv.cmd('python3 -m http.server 80 &')
     time.sleep(2)  # Đợi server khởi động
@@ -100,6 +102,8 @@ def myNetwork():
     h_it_0.cmd('iperf3 -c 192.168.30.10 -t 20 &')
 
     CLI(net)
+
+
     net.stop()
 
 if __name__ == '__main__':

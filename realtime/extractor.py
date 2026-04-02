@@ -2,7 +2,7 @@ from nfstream import NFStreamer
 import pandas as pd
 import os
 
-INTERFACE = "s4-eth4" 
+INTERFACE = "s1-eth10" 
 OUTPUT_FILE = "collected_data.csv"
 BUFFER_SIZE = 10 
 flow_buffer = []
