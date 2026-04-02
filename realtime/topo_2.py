@@ -5,6 +5,7 @@ from mininet.log import setLogLevel
 
 from mininet.node import Node 
 
+import time
 
 def myNetwork():
     net = Mininet(topo=None, build=True, ipBase='192.168.1.0/24')
@@ -71,7 +72,7 @@ def myNetwork():
     
     time.sleep(5)
 
-    
+
 
     print("*** Starting Network")
     net.start()
@@ -91,19 +92,17 @@ def myNetwork():
     gw.cmd('sysctl -w net.ipv4.ip_forward=1')
 
 
-    print("*** Generating traffic automatically...")
-    import time
-    srv = net.get('h_srv_0')
-    srv.cmd('iperf3 -s &')
-    srv.cmd('python3 -m http.server 80 &')
-    time.sleep(2)  # Đợi server khởi động
-    h_hr_0.cmd('iperf3 -c 192.168.30.10 -t 20 &')
-    h_sale_0.cmd('curl http://192.168.30.10 &')
-    h_it_0.cmd('iperf3 -c 192.168.30.10 -t 20 &')
+    # print("*** Generating traffic automatically...")
+    
+    # srv = net.get('h_srv_0')
+    # srv.cmd('iperf3 -s &')
+    # srv.cmd('python3 -m http.server 80 &')
+    # time.sleep(2)  # Đợi server khởi động
+    # h_hr_0.cmd('iperf3 -c 192.168.30.10 -t 20 &')
+    # h_sale_0.cmd('curl http://192.168.30.10 &')
+    # h_it_0.cmd('iperf3 -c 192.168.30.10 -t 20 &')
 
     CLI(net)
-
-
     net.stop()
 
 if __name__ == '__main__':
