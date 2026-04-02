@@ -68,9 +68,9 @@ def myNetwork():
     for i, h in enumerate(srv_hosts):  net.addLink(h, access_switches[3], port2=i+3)
 
 
-    print("*** Wating 5 seconds for user to run extractor. . . ")
+    # print("*** Wating 5 seconds for user to run extractor. . . ")
     
-    time.sleep(5)
+    # time.sleep(5)
 
 
 
