@@ -232,8 +232,19 @@ def extract_features():
     streamer = NFStreamer(source=INTERFACE, statistical_analysis=True, splt_analysis=0, idle_timeout=1)
 
     for flow in streamer:
+
+        # Only keep TCP (6) and UDP (17) flows
+        if flow.protocol not in [6, 17]:
+            continue
+        # Skip IPv6 multicast/broadcast addresses
+        if str(flow.dst_ip).startswith("ff"):
+            continue
+        # Skip flows with no bidirectional packets (e.g., unidirectional or incomplete flows)
+        if flow.bidirectional_packets == 0:
+            continue
+
         d = flow.bidirectional_duration_ms / 1000.0
-        
+
         # MAPPING 75 ĐẶC TRƯNG - BẢN 6.6.0 (Sửa lỗi _size và _ms)
         data = {
             "Flow ID": f"{flow.src_ip}-{flow.dst_ip}-{flow.src_port}-{flow.dst_port}-{flow.protocol}",
