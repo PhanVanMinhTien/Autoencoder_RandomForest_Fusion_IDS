@@ -4,23 +4,23 @@ import os
 
 INTERFACE = "s1-eth10" 
 OUTPUT_FILE = "collected_data.csv"
-BUFFER_SIZE = 10 
+BUFFER_SIZE = 1 
 flow_buffer = []
 
 def extract_features():
     print(f"[*] Đang trích xuất ~75 đặc trưng trên {INTERFACE}...")
-    streamer = NFStreamer(source=INTERFACE, statistical_analysis=True, splt_analysis=0, idle_timeout=1)
+    streamer = NFStreamer(source=INTERFACE, statistical_analysis=True, splt_analysis=0, idle_timeout=5)
 
     for flow in streamer:
 
         # Only keep TCP (6) and UDP (17) flows
-        if flow.protocol not in [6, 17, 1]: # 1 for ICMP
+        if flow.protocol not in [6, 17]:
             continue
         # Skip IPv6 multicast/broadcast addresses
         if str(flow.dst_ip).startswith("ff"):
             continue
         # Skip flows with no bidirectional packets (e.g., unidirectional or incomplete flows)
-        if flow.bidirectional_packets == 0:
+        if flow.bidirectional_packets < 1:
             continue
 
         d = flow.bidirectional_duration_ms / 1000.0
