@@ -32,7 +32,7 @@
 # generate_traffic()
 
 # # if __name__ == '__main__':
-# #     print("⚠️ Chạy file này trong Mininet CLI bằng py command")
+# #     print("Chạy file này trong Mininet CLI bằng py command")
 
 import time
 
@@ -51,8 +51,8 @@ time.sleep(2)
 while True:
     print("[*] Generating traffic...")
 
-    h_hr_0.cmd('iperf3 -c 192.168.30.10 -t 10 &')
-    h_it_0.cmd('iperf3 -c 192.168.30.10 -t 10 &')
-    h_sale_0.cmd('curl http://192.168.30.10 &')
+    h_hr_0.cmd('iperf3 -c 192.168.30.10 -t 10 &')           # Tạo traffic TCP từ HR đến Server
+    h_it_0.cmd('iperf3 -c 192.168.30.10 -t 10 &')           # Tạo traffic TCP từ IT đến Server    
+    h_sale_0.cmd('curl http://192.168.30.10 &')             # Tạo traffic HTTP từ Sale đến Server
 
     time.sleep(15)

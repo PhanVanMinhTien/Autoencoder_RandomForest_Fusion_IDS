@@ -218,17 +218,18 @@ SELECTED_FEATURES = ['RST Flag Count', 'Total Length of Fwd Packets', 'Bwd IAT M
                      'Total Length of Bwd Packets', 'min_seg_size_forward', 'Packet Length Mean', 'Bwd Header Length', 
                      'CWE Flag Count', 'Packet Length Variance', 'Bwd Packet Length Mean', 'Avg Bwd Segment Size', 'Fwd IAT Std']
 
-#40
-AE_INPUT_FEATIRES = ['RST Flag Count', 'Total Length of Fwd Packets', 'Bwd IAT Min', 'ECE Flag Count', 
-                     'act_data_pkt_fwd', 'Idle Std', 'Bwd Packet Length Min', 'Total Fwd Packets', 'Bwd IAT Mean', 
-                     'PSH Flag Count', 'Destination Port', 'Flow IAT Std', 'Bwd Packet Length Std', 'Bwd IAT Max', 
-                     'Fwd PSH Flags', 'Fwd Packet Length Max', 'Active Min', 'Init_Win_bytes_backward', 'Bwd Packets/s', 
-                     'SYN Flag Count', 'Fwd IAT Min', 'Flow Duration', 'Down/Up Ratio', 'Bwd IAT Std', 'Fwd IAT Mean', 
-                     'Fwd Packet Length Std', 'Active Mean', 'Fwd IAT Total', 'Min Packet Length', 'URG Flag Count', 
-                     'Idle Max', 'Fwd Packet Length Mean', 'Flow IAT Max', 'Packet Length Std', 'Avg Fwd Segment Size', 
-                     'Fwd IAT Max', 'ACK Flag Count', 'Idle Mean', 'Fwd Packet Length Min', 'Idle Min']
+#30
+AE_INPUT_FEATURES = [
+                     'RST Flag Count', 'Total Length of Fwd Packets', 'Bwd IAT Min', 
+                     'ECE Flag Count', 'act_data_pkt_fwd', 'Idle Std', 'Bwd Packet Length Min', 
+                     'Total Fwd Packets', 'Bwd IAT Mean', 'PSH Flag Count', 'Destination Port', 
+                     'Flow IAT Std', 'Bwd Packet Length Std', 'Bwd IAT Max', 'Fwd Packet Length Max', 
+                     'Fwd PSH Flags', 'Active Min', 'Init_Win_bytes_backward', 'SYN Flag Count', 
+                     'Flow Duration', 'Fwd IAT Min', 'Down/Up Ratio', 'Bwd IAT Std', 'Fwd Packet Length Std', 
+                     'Fwd IAT Total', 'Bwd Packets/s', 'Active Mean', 'Fwd IAT Mean', 'URG Flag Count', 
+                     'Min Packet Length']                        
 
-#20
+#Top-20 features 
 mRMR_FEATURES = [
                 'RST Flag Count', 'Total Length of Fwd Packets', 'Bwd IAT Min', 
                 'ECE Flag Count', 'act_data_pkt_fwd', 'Idle Std', 'Bwd Packet Length Min', 
@@ -237,7 +238,7 @@ mRMR_FEATURES = [
                 'Fwd PSH Flags', 'Active Min', 'Init_Win_bytes_backward', 'Bwd Packets/s', 'Fwd IAT Min'
                 ]
 
-# 32
+# 30
 # mRMR_FEATURES = ['RST Flag Count', 'Total Length of Fwd Packets', 'Bwd IAT Min', 
 #                      'ECE Flag Count', 'act_data_pkt_fwd', 'Idle Std', 'Bwd Packet Length Min', 
 #                      'Total Fwd Packets', 'Bwd IAT Mean', 'PSH Flag Count', 'Destination Port', 
@@ -245,7 +246,7 @@ mRMR_FEATURES = [
 #                      'Fwd PSH Flags', 'Active Min', 'Init_Win_bytes_backward', 'SYN Flag Count', 
 #                      'Flow Duration', 'Fwd IAT Min', 'Down/Up Ratio', 'Bwd IAT Std', 'Fwd Packet Length Std', 
 #                      'Fwd IAT Total', 'Bwd Packets/s', 'Active Mean', 'Fwd IAT Mean', 'URG Flag Count', 
-#                      'Min Packet Length', 'Idle Max', 'Fwd Packet Length Mean']
+#                      'Min Packet Length']
 
 # --- MODEL HYPERPARAMETERS ---
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"

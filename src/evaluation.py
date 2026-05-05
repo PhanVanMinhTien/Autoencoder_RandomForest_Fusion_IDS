@@ -9,7 +9,7 @@ def evaluate_model(model, X_test, y_test, save_dir=None, dataset_name="Test Set"
     Đánh giá model với đầy đủ metrics: Accuracy, F1, Recall, Precision, MCC.
     Lưu report và confusion matrix vào folder experiment (nếu có save_dir).
     """
-    print(f"\n📊 Evaluating on {dataset_name}...")
+    print(f"\nEvaluating on {dataset_name}...")
     
     # 1. Dự đoán
     y_pred = model.predict(X_test)
@@ -20,8 +20,8 @@ def evaluate_model(model, X_test, y_test, save_dir=None, dataset_name="Test Set"
     report_dict = classification_report(y_test, y_pred, target_names=["Normal", "Attack"], output_dict=True)
     report_str = classification_report(y_test, y_pred, target_names=["Normal", "Attack"], digits=4)
     
-    print(f"   ✅ Accuracy: {acc:.4f}")
-    print(f"   ⭐ MCC:      {mcc:.4f}")
+    print(f"Accuracy: {acc:.4f}")
+    print(f" MCC:      {mcc:.4f}")
     
     # 3. Lưu kết quả nếu có đường dẫn
     if save_dir:
@@ -35,7 +35,7 @@ def evaluate_model(model, X_test, y_test, save_dir=None, dataset_name="Test Set"
             f.write(f"MCC:      {mcc:.6f}\n\n")
             f.write("--- Detailed Classification Report ---\n")
             f.write(report_str)
-        print(f"   📝 Report saved to: {report_path.name}")
+        print(f"Report saved to: {report_path.name}")
             
         # B. Vẽ & Lưu Confusion Matrix
         cm = confusion_matrix(y_test, y_pred)
@@ -50,7 +50,7 @@ def evaluate_model(model, X_test, y_test, save_dir=None, dataset_name="Test Set"
         cm_path = save_dir / f"cm_{dataset_name.replace(' ', '_')}.png"
         plt.savefig(cm_path)
         plt.close()
-        print(f"   🖼️ Confusion Matrix saved to: {cm_path.name}")
+        print(f"Confusion Matrix saved to: {cm_path.name}")
 
     return {
         "accuracy": acc,
