@@ -23,6 +23,9 @@ results/summary
 *.pkl
 *.h5
 
+models_deploy/
+models_nfstream/
+
 # OS
 .DS_Store
 Thumbs.db

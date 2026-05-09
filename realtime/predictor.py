@@ -263,9 +263,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--csv", default="collected_data.csv")
-    parser.add_argument("--scaler", default="model/scaler.joblib")
-    parser.add_argument("--ae", default="model/ae_model.pth")
-    parser.add_argument("--rf", default="model/rf_model.joblib")
+    parser.add_argument("--scaler", default="models/scaler.joblib")
+    parser.add_argument("--ae", default="models/ae_model.pth")
+    parser.add_argument("--rf", default="models/rf_model.joblib")
     parser.add_argument("--block-url", default="http://127.0.0.1:8080/block")
     parser.add_argument("--idle-timeout", type=int, default=300)
     parser.add_argument("--interval", type=float, default=1.0)

@@ -238,6 +238,40 @@ mRMR_FEATURES = [
                 'Fwd PSH Flags', 'Active Min', 'Init_Win_bytes_backward', 'Bwd Packets/s', 'Fwd IAT Min'
                 ]
 
+
+NFSTREAM_FEATURE_30 = [
+    'RST Flag Count',
+    'Total Length of Fwd Packets',
+    'Bwd IAT Min',
+    'ECE Flag Count',
+    'act_data_pkt_fwd',
+    'Bwd Packet Length Min',
+    'Total Fwd Packets',
+    'Bwd IAT Mean',
+    'PSH Flag Count',
+    'Destination Port',
+    'Flow IAT Std',
+    'Bwd Packet Length Std',
+    'Bwd IAT Max',
+    'Fwd PSH Flags',
+    'Fwd Packet Length Max',
+    'Flow Duration',
+    'SYN Flag Count',
+    'Fwd IAT Min',
+    'Bwd IAT Std',
+    'Down/Up Ratio',
+    'Fwd IAT Total',
+    'Fwd Packet Length Std',
+    'Fwd IAT Mean',
+    'URG Flag Count',
+    'Min Packet Length',
+    'Bwd Packets/s',
+    'Packet Length Std',
+    'Flow IAT Max',
+    'Fwd Packet Length Mean',
+    'Fwd IAT Max'
+]
+
 # 30
 # mRMR_FEATURES = ['RST Flag Count', 'Total Length of Fwd Packets', 'Bwd IAT Min', 
 #                      'ECE Flag Count', 'act_data_pkt_fwd', 'Idle Std', 'Bwd Packet Length Min', 
