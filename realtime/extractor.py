@@ -161,39 +161,6 @@ import argparse
 import time
 
 
-# FEATURE_30 = [
-#     "RST Flag Count",
-#     "Total Length of Fwd Packets",
-#     "Bwd IAT Min",
-#     "ECE Flag Count",
-#     "act_data_pkt_fwd",
-#     "Idle Std",
-#     "Bwd Packet Length Min",
-#     "Total Fwd Packets",
-#     "Bwd IAT Mean",
-#     "PSH Flag Count",
-#     "Destination Port",
-#     "Flow IAT Std",
-#     "Bwd Packet Length Std",
-#     "Bwd IAT Max",
-#     "Fwd Packet Length Max",
-#     "Fwd PSH Flags",
-#     "Active Min",
-#     "Init_Win_bytes_backward",
-#     "SYN Flag Count",
-#     "Flow Duration",
-#     "Fwd IAT Min",
-#     "Down/Up Ratio",
-#     "Bwd IAT Std",
-#     "Fwd Packet Length Std",
-#     "Fwd IAT Total",
-#     "Bwd Packets/s",
-#     "Active Mean",
-#     "Fwd IAT Mean",
-#     "URG Flag Count",
-#     "Min Packet Length",
-# ]
-
 FEATURE_30 = [
     'RST Flag Count',
     'Total Length of Fwd Packets',
@@ -228,16 +195,31 @@ FEATURE_30 = [
 ]
 
 
+METADATA_COLUMNS = [
+    "Flow ID",
+    "Source IP",
+    "Source Port",
+    "Destination IP",
+    "Destination Port",
+    "Protocol",
+    "Timestamp",
+]
+
+
+CSV_COLUMNS = METADATA_COLUMNS + FEATURE_30
+
+
 def g(flow, attr, default=0):
-    """
-    Safe getattr for NFStreamer attributes.
-    Some attributes may not exist depending on NFStreamer version.
-    """
-    return getattr(flow, attr, default)
+    value = getattr(flow, attr, default)
+    if value is None:
+        return default
+    return value
 
 
 def build_flow_record(flow):
-    duration_sec = flow.bidirectional_duration_ms / 1000.0
+    duration_ms = g(flow, "bidirectional_duration_ms", 0)
+    duration_sec = duration_ms / 1000.0
+
     if duration_sec <= 0:
         duration_sec = 0.0001
 
@@ -260,7 +242,6 @@ def build_flow_record(flow):
         "Bwd IAT Min": g(flow, "dst2src_min_piat_ms", 0),
         "ECE Flag Count": g(flow, "src2dst_ece_packets", 0) + g(flow, "dst2src_ece_packets", 0),
         "act_data_pkt_fwd": src2dst_packets,
-        "Idle Std": 0,
         "Bwd Packet Length Min": g(flow, "dst2src_min_ps", 0),
         "Total Fwd Packets": src2dst_packets,
         "Bwd IAT Mean": g(flow, "dst2src_mean_piat_ms", 0),
@@ -269,32 +250,38 @@ def build_flow_record(flow):
         "Flow IAT Std": g(flow, "bidirectional_stddev_piat_ms", 0),
         "Bwd Packet Length Std": g(flow, "dst2src_stddev_ps", 0),
         "Bwd IAT Max": g(flow, "dst2src_max_piat_ms", 0),
-        "Fwd Packet Length Max": g(flow, "src2dst_max_ps", 0),
         "Fwd PSH Flags": g(flow, "src2dst_psh_packets", 0),
-        "Active Min": 0,
-        "Init_Win_bytes_backward": 0,
+        "Fwd Packet Length Max": g(flow, "src2dst_max_ps", 0),
+        "Flow Duration": duration_ms,
         "SYN Flag Count": g(flow, "src2dst_syn_packets", 0) + g(flow, "dst2src_syn_packets", 0),
-        "Flow Duration": g(flow, "bidirectional_duration_ms", 0),
         "Fwd IAT Min": g(flow, "src2dst_min_piat_ms", 0),
-        "Down/Up Ratio": dst2src_packets / (src2dst_packets + 1),
         "Bwd IAT Std": g(flow, "dst2src_stddev_piat_ms", 0),
-        "Fwd Packet Length Std": g(flow, "src2dst_stddev_ps", 0),
+        "Down/Up Ratio": dst2src_packets / (src2dst_packets + 1),
         "Fwd IAT Total": g(flow, "src2dst_duration_ms", 0),
-        "Bwd Packets/s": dst2src_packets / (duration_sec + 1e-6),
-        "Active Mean": 0,
+        "Fwd Packet Length Std": g(flow, "src2dst_stddev_ps", 0),
         "Fwd IAT Mean": g(flow, "src2dst_mean_piat_ms", 0),
         "URG Flag Count": g(flow, "src2dst_urg_packets", 0) + g(flow, "dst2src_urg_packets", 0),
         "Min Packet Length": g(flow, "bidirectional_min_ps", 0),
+        "Bwd Packets/s": dst2src_packets / (duration_sec + 1e-6),
+        "Packet Length Std": g(flow, "bidirectional_stddev_ps", 0),
+        "Flow IAT Max": g(flow, "bidirectional_max_piat_ms", 0),
+        "Fwd Packet Length Mean": g(flow, "src2dst_mean_ps", 0),
+        "Fwd IAT Max": g(flow, "src2dst_max_piat_ms", 0),
     }
 
-    return record
+    # Ensure exact CSV column order
+    ordered_record = {}
+    for col in CSV_COLUMNS:
+        ordered_record[col] = record.get(col, 0)
+
+    return ordered_record
 
 
 def append_records(records, output_file):
     if not records:
         return
 
-    df = pd.DataFrame(records)
+    df = pd.DataFrame(records, columns=CSV_COLUMNS)
     file_exists = os.path.exists(output_file)
 
     df.to_csv(
@@ -350,7 +337,7 @@ if __name__ == "__main__":
     parser.add_argument("--interface", default="s1-eth10")
     parser.add_argument("--output", default="collected_data.csv")
     parser.add_argument("--buffer-size", type=int, default=1)
-    parser.add_argument("--idle-timeout", type=int, default=5)
+    parser.add_argument("--idle-timeout", type=int, default=1)
 
     args = parser.parse_args()
 
